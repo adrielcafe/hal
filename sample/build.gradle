@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "cafe.adriel.hal.sample"
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':hal-core')
+    implementation project(':hal-livedata')
+
+    implementation ModuleLib.KOTLIN
+    implementation ModuleLib.COROUTINES
+    implementation ModuleLib.APP_COMPAT
+    implementation ModuleLib.LIFECYCLE
+    implementation ModuleLib.VIEWMODEL_KTX
+    implementation ModuleLib.ACTIVITY_KTX
+}

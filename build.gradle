@@ -1,0 +1,30 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        ProjectLib.all.forEach { classpath it }
+    }
+}
+
+allprojects {
+    apply plugin: 'io.gitlab.arturbosch.detekt'
+    apply plugin: 'org.jlleitschuh.gradle.ktlint'
+    apply plugin: 'com.github.ben-manes.versions'
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+    detekt {
+        config = files("${rootDir}/detekt.yml")
+    }
+    ktlint {
+        android = true
+    }
+}
+
