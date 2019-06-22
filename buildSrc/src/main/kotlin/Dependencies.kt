@@ -5,6 +5,7 @@ internal object Version {
     const val GRADLE_DETEKT = "1.0.0-RC15"
     const val GRADLE_KTLINT = "8.1.0"
     const val GRADLE_VERSIONS = "0.21.0"
+    const val GRADLE_MAVEN = "2.1"
 
     const val KOTLIN = "1.3.40"
     const val COROUTINES = "1.2.1"
@@ -23,8 +24,9 @@ object ProjectLib {
     const val DETEKT = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Version.GRADLE_DETEKT}"
     const val KTLINT = "org.jlleitschuh.gradle:ktlint-gradle:${Version.GRADLE_KTLINT}"
     const val VERSIONS = "com.github.ben-manes:gradle-versions-plugin:${Version.GRADLE_VERSIONS}"
+    const val MAVEN = "com.github.dcendents:android-maven-gradle-plugin:${Version.GRADLE_MAVEN}"
 
-    val all = setOf(ANDROID, KOTLIN, DETEKT, KTLINT, VERSIONS)
+    val all = setOf(ANDROID, KOTLIN, DETEKT, KTLINT, VERSIONS, MAVEN)
 }
 
 object ModuleLib {
