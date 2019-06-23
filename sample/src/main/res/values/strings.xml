@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HAL</string>
+    <string name="insert_coin">Insert coin</string>
+    <string name="push">Push</string>
 </resources>

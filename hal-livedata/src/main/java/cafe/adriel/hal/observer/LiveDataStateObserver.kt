@@ -13,7 +13,7 @@ class LiveDataStateObserver<S : State>(
 
     private val liveData by lazy { MutableLiveData<S>() }
 
-    override suspend fun update(newState: S) {
+    override suspend fun transitionTo(newState: S) {
         liveData.value = newState
     }
 

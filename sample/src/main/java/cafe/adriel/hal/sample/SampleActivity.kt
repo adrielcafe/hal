@@ -1,7 +1,6 @@
 package cafe.adriel.hal.sample
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import cafe.adriel.hal.observe
@@ -17,17 +16,27 @@ class SampleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sample)
 
-        vClickMe.setOnClickListener {
-            viewModel + SampleAction.OnButtonClicked
+        vInsertCoin.setOnClickListener {
+            viewModel + SampleAction.InsertCoin
+        }
+        vPush.setOnClickListener {
+            viewModel + SampleAction.Push
         }
 
         viewModel.observe(LiveDataStateObserver(this) { state ->
             when (state) {
-                is SampleState.MessageLoaded -> showMessage(state.message)
+                is SampleState.Locked -> updateState(true)
+                is SampleState.Unlocked -> updateState(false)
             }
         })
     }
 
-    private fun showMessage(message: String) =
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun updateState(locked: Boolean) {
+        vTurnstileState.setImageResource(
+            if (locked) R.drawable.ic_lock_close else R.drawable.ic_lock_open
+        )
+
+        vInsertCoin.isEnabled = locked
+        vPush.isEnabled = !locked
+    }
 }

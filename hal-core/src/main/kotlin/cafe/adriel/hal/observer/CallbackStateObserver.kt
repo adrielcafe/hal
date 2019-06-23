@@ -7,7 +7,7 @@ class CallbackStateObserver<S : State>(
     override val observer: (S) -> Unit
 ) : StateObserver<S> {
 
-    override suspend fun update(newState: S) = observer(newState)
+    override suspend fun transitionTo(newState: S) = observer(newState)
 
     override suspend fun start() { /* Do nothing */ }
 

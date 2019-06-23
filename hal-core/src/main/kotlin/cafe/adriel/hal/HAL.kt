@@ -4,36 +4,48 @@ import cafe.adriel.hal.HAL.Action
 import cafe.adriel.hal.HAL.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.reflect.KProperty
 
 class HAL<A : Action, S : State> (
     private val scope: CoroutineScope,
-    private val reducer: suspend (A) -> S
+    private val initialState: S,
+    private val reducer: suspend (action: A, transitionTo: suspend (S) -> Unit) -> Unit
 ) {
 
-    private lateinit var observer: StateObserver<S>
+    // TODO Replace by BroadcastChannel and add support to multiple observers
+    private val stateChannel by lazy { Channel<S>(Channel.UNLIMITED) }
 
-    fun observe(newObserver: StateObserver<S>) {
+    private lateinit var stateObserver: StateObserver<S>
+
+    lateinit var currentState: S
+
+    fun observe(observer: StateObserver<S>) {
         scope.launch {
-            observer = newObserver
-            observer.start()
+            stateObserver = observer.apply {
+                start()
+            }
+            stateChannel.apply {
+                send(initialState)
+                consumeEach { newState ->
+                    currentState = newState
+                    stateObserver.transitionTo(currentState)
+                }
+            }
         }.invokeOnCompletion {
-            observer.stop()
+            stateObserver.stop()
         }
     }
 
     fun emit(action: A) {
-        scope.launch {
-            val newState = withContext(Dispatchers.Default) {
-                reducer(action)
-            }
-            observer.update(newState)
+        scope.launch(Dispatchers.Default) {
+            reducer(action, stateChannel::send)
         }
     }
 
-    operator fun getValue(thisRef: StateMachine<A, S>, property: KProperty<*>): HAL<A, S> = this
+    operator fun getValue(thisRef: StateMachine<A, S>, property: KProperty<*>) = this
 
     interface Action
 
@@ -43,7 +55,7 @@ class HAL<A : Action, S : State> (
 
         val observer: (S) -> Unit
 
-        suspend fun update(newState: S)
+        suspend fun transitionTo(newState: S)
 
         suspend fun start()
 

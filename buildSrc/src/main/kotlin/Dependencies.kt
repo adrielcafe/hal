@@ -11,7 +11,7 @@ internal object Version {
     const val COROUTINES = "1.2.1"
     const val LIVEDATA = "2.0.0"
 
-    // Sample only
+    // Sample app only
     const val APP_COMPAT = "1.1.0-beta01"
     const val LIFECYCLE = "2.2.0-alpha01"
     const val VIEWMODEL_KTX = "2.2.0-alpha01"
@@ -31,7 +31,8 @@ object ProjectLib {
 
 object ModuleLib {
     const val KOTLIN = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Version.KOTLIN}"
-    const val COROUTINES = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.COROUTINES}"
+    const val COROUTINES_CORE = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.COROUTINES}"
+    const val COROUTINES_ANDROID = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.COROUTINES}"
     const val LIVEDATA = "androidx.lifecycle:lifecycle-livedata:${Version.LIVEDATA}"
 
     const val APP_COMPAT = "androidx.appcompat:appcompat:${Version.APP_COMPAT}"
