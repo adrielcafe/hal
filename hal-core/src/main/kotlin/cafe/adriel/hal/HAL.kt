@@ -3,6 +3,7 @@ package cafe.adriel.hal
 import cafe.adriel.hal.HAL.Action
 import cafe.adriel.hal.HAL.State
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -12,36 +13,34 @@ import kotlin.reflect.KProperty
 class HAL<A : Action, S : State> (
     private val scope: CoroutineScope,
     private val initialState: S,
-    private val reducer: suspend (action: A, transitionTo: suspend (S) -> Unit) -> Unit
+    private val reducer: suspend (action: A, transitionTo: (S) -> Unit) -> Unit
 ) {
 
-    // TODO Replace by BroadcastChannel and add support to multiple observers
     private val stateChannel by lazy { Channel<S>(Channel.UNLIMITED) }
 
     private lateinit var stateObserver: StateObserver<S>
 
-    lateinit var currentState: S
+    var currentState = initialState
+
+    init {
+        scope.launch {
+            stateChannel.consumeEach { state ->
+                currentState = state
+                stateObserver.transitionTo(currentState)
+            }
+        }
+    }
 
     fun observe(observer: StateObserver<S>) {
-        scope.launch {
-            stateObserver = observer.apply {
-                start()
-            }
-            stateChannel.apply {
-                send(initialState)
-                consumeEach { newState ->
-                    currentState = newState
-                    stateObserver.transitionTo(currentState)
-                }
-            }
-        }.invokeOnCompletion {
-            stateObserver.stop()
+        scope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
+            stateObserver = observer
+            stateChannel.send(initialState)
         }
     }
 
     fun emit(action: A) {
-        scope.launch(Dispatchers.Default) {
-            reducer(action, stateChannel::send)
+        scope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
+            reducer(action, stateChannel::offer)
         }
     }
 
@@ -55,11 +54,7 @@ class HAL<A : Action, S : State> (
 
         val observer: (S) -> Unit
 
-        suspend fun transitionTo(newState: S)
-
-        suspend fun start()
-
-        fun stop()
+        fun transitionTo(newState: S)
     }
 
     interface StateMachine<A : Action, S : State> {

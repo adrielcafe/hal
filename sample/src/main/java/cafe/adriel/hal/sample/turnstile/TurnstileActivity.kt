@@ -1,32 +1,33 @@
-package cafe.adriel.hal.sample
+package cafe.adriel.hal.sample.turnstile
 
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import cafe.adriel.hal.observe
+import cafe.adriel.hal.observeState
 import cafe.adriel.hal.observer.LiveDataStateObserver
 import cafe.adriel.hal.plus
-import kotlinx.android.synthetic.main.activity_sample.*
+import cafe.adriel.hal.sample.R
+import kotlinx.android.synthetic.main.activity_turnstile.*
 
-class SampleActivity : AppCompatActivity() {
+class TurnstileActivity : AppCompatActivity() {
 
-    private val viewModel by viewModels<SampleViewModel>()
+    private val viewModel by viewModels<TurnstileViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sample)
+        setContentView(R.layout.activity_turnstile)
 
         vInsertCoin.setOnClickListener {
-            viewModel + SampleAction.InsertCoin
+            viewModel + TurnstileAction.InsertCoin
         }
         vPush.setOnClickListener {
-            viewModel + SampleAction.Push
+            viewModel + TurnstileAction.Push
         }
 
-        viewModel.observe(LiveDataStateObserver(this) { state ->
+        viewModel.observeState(LiveDataStateObserver(this) { state ->
             when (state) {
-                is SampleState.Locked -> updateState(true)
-                is SampleState.Unlocked -> updateState(false)
+                is TurnstileState.Locked -> updateState(true)
+                is TurnstileState.Unlocked -> updateState(false)
             }
         })
     }

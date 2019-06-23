@@ -23,10 +23,5 @@ dependencies {
     implementation project(':hal-core')
     implementation project(':hal-livedata')
 
-    implementation ModuleLib.KOTLIN
-    implementation ModuleLib.COROUTINES_ANDROID
-    implementation ModuleLib.APP_COMPAT
-    implementation ModuleLib.LIFECYCLE
-    implementation ModuleLib.VIEWMODEL_KTX
-    implementation ModuleLib.ACTIVITY_KTX
+    ModuleLib.sample.forEach { implementation it }
 }

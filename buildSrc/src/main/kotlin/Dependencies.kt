@@ -16,6 +16,7 @@ internal object Version {
     const val LIFECYCLE = "2.2.0-alpha01"
     const val VIEWMODEL_KTX = "2.2.0-alpha01"
     const val ACTIVITY_KTX = "1.0.0-beta01"
+    const val FUEL = "2.1.0"
 }
 
 object ProjectLib {
@@ -39,4 +40,9 @@ object ModuleLib {
     const val LIFECYCLE = "androidx.lifecycle:lifecycle-extensions:${Version.LIFECYCLE}"
     const val VIEWMODEL_KTX = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Version.VIEWMODEL_KTX}"
     const val ACTIVITY_KTX = "androidx.activity:activity-ktx:${Version.ACTIVITY_KTX}"
+    const val FUEL_CORE = "com.github.kittinunf.fuel:fuel:${Version.FUEL}"
+    const val FUEL_COROUTINES = "com.github.kittinunf.fuel:fuel-coroutines:${Version.FUEL}"
+
+    val sample = setOf(KOTLIN, COROUTINES_ANDROID, APP_COMPAT, LIFECYCLE, VIEWMODEL_KTX,
+        ACTIVITY_KTX, FUEL_CORE, FUEL_COROUTINES)
 }

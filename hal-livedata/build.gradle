@@ -23,6 +23,5 @@ dependencies {
     implementation project(':hal-core')
 
     implementation ModuleLib.KOTLIN
-    implementation ModuleLib.COROUTINES_ANDROID
     implementation ModuleLib.LIVEDATA
 }

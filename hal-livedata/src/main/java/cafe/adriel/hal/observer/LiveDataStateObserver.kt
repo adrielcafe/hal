@@ -7,17 +7,17 @@ import cafe.adriel.hal.HAL.State
 import cafe.adriel.hal.HAL.StateObserver
 
 class LiveDataStateObserver<S : State>(
-    private val lifecycleOwner: LifecycleOwner,
+    lifecycleOwner: LifecycleOwner,
     override val observer: (S) -> Unit
 ) : StateObserver<S> {
 
     private val liveData by lazy { MutableLiveData<S>() }
 
-    override suspend fun transitionTo(newState: S) {
-        liveData.value = newState
+    init {
+        liveData.observe(lifecycleOwner, Observer(observer))
     }
 
-    override suspend fun start() = liveData.observe(lifecycleOwner, Observer(observer))
-
-    override fun stop() { /* Managed by lifecycle owner */ }
+    override fun transitionTo(newState: S) {
+        liveData.value = newState
+    }
 }

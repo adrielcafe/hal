@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".SampleActivity">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/vTurnstileState"
@@ -26,5 +25,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/push"/>
-
 </LinearLayout>

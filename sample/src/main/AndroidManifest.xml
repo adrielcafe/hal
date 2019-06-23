@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="cafe.adriel.hal.sample">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
@@ -13,12 +15,14 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".SampleActivity">
+            android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".turnstile.TurnstileActivity"/>
+        <activity android:name=".network.NetworkActivity"/>
     </application>
 
 </manifest>
