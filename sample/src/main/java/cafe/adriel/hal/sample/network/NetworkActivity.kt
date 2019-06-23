@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import cafe.adriel.hal.observeState
+import cafe.adriel.hal.livedata.observeState
 import cafe.adriel.hal.plus
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_network.*

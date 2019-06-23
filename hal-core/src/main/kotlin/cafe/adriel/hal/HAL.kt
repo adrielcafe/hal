@@ -40,7 +40,9 @@ class HAL<A : Action, S : State> (
 
     fun emit(action: A) {
         scope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
-            reducer(action, stateChannel::offer)
+            reducer(action) {
+                stateChannel.offer(it)
+            }
         }
     }
 
