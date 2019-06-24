@@ -8,7 +8,7 @@ sealed class NetworkAction : HAL.Action {
 
 sealed class NetworkState : HAL.State {
     object Init : NetworkState()
-    data class PostsLoaded(val posts: List<String>) : NetworkState()
     object Loading : NetworkState()
+    data class PostsLoaded(val posts: List<String>) : NetworkState()
     data class Error(val message: String) : NetworkState()
 }
