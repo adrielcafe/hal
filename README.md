@@ -6,17 +6,38 @@
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg?style=for-the-badge)](https://ktlint.github.io/) 
 [![License MIT](https://img.shields.io/github/license/adrielcafe/hal.svg?style=for-the-badge&color=yellow)](https://opensource.org/licenses/MIT) 
 
-# ![logo](https://github.com/adrielcafe/hal/blob/master/hal-logo.png?raw=true) HAL
+<p align="center">
+    <img width="200px" height="200px" src="https://github.com/adrielcafe/hal/blob/master/hal-logo.png?raw=true">
+</p>
 
-🔴 **HAL** is a minimalistic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
+### **HAL** is a non-deterministic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
+
+#### Why non-deterministic?
+
+In a [non-deterministic](https://www.tutorialspoint.com/automata_theory/non_deterministic_finite_automaton.htm) finite-state machine, an action can lead to *one*, *more than one*, or *no transition* for a given state.
+
+Use cases:
+* InsertCoin `transition to` Unlocked
+* LoadPosts `transition to` Loading then `transition to` Success or Error
+* LogMessage `don't transition` 
+
+[![turnstile diagram](https://github.com/adrielcafe/hal/blob/master/turnstile-diagram.jpg?raw=true)](https://www.smashingmagazine.com/2018/01/rise-state-machines/)
+    
+#### Why HAL?
+
+It's a tribute to [HAL 9000](https://en.wikipedia.org/wiki/HAL_9000) (**H**euristically programmed **AL**gorithmic computer), the sentient computer that controls the systems of the [Discovery One](https://en.wikipedia.org/wiki/Discovery_One) spacecraft. 
+
+<p align="center">
+    <i>"I'm sorry, Dave. I'm afraid I can't do that." (HAL 9000)</i>
+</p>
+
+---
 
 This project started as a library module in one of my personal projects, but I decided to open source it and add more features for general use. Hope you like!
 
-[![turnstile diagram](https://github.com/adrielcafe/hal/blob/master/turnstile-diagram.jpg?raw=true)](https://www.smashingmagazine.com/2018/01/rise-state-machines/)
-
 ## Usage
 
-First, declare your `Action`s and `State`s. They **must** implement `HAL.Action` and `HAL.State` respectively.
+First, declare your `Action`s and `State`s. They *must* implement `HAL.Action` and `HAL.State` respectively.
 
 ```kotlin
 sealed class MyAction : HAL.Action {
@@ -51,8 +72,7 @@ The `HAL` class receives the following parameters:
 You should handle all actions inside the reducer function. Call `transitionTo()` whenever you need to change the state (it can be called multiple times).
 
 ```kotlin
-class MyViewModel(private val postRepository: PostRepository) 
-    : ViewModel(), HAL.StateMachine<MyAction, MyState> {
+class MyViewModel(private val postRepository: PostRepository) : ViewModel(), HAL.StateMachine<MyAction, MyState> {
 
     override val hal by HAL(viewModelScope, MyState.Init) { action, transitionTo ->
         when (action) {
@@ -77,9 +97,9 @@ class MyViewModel(private val postRepository: PostRepository)
 }
 ```
 
-Finally, inside your view class (`Activity`, `Fragment` or similar) you can emit actions to your state machine and observe state changes.
+Finally, choose a class to emit actions to your state machine and observe state changes, it can be an `Activity`, `Fragment` or any other class.
 
-If you want to use a [LiveData-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt), just pass your `LifecycleOwner` to `observeState()`, otherwise HAL will use a default [Callback-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/CallbackStateObserver.kt) (which is best suited for JVM-only applications).
+If you want to use a [LiveData-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt) (highly recommended if you're on Android), just pass your `LifecycleOwner` to `observeState()`, otherwise HAL will use a default [Callback-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/CallbackStateObserver.kt) (which is best suited for JVM-only applications).
 
 ```kotlin
 class MyActivity : AppCompatActivity() {
@@ -94,7 +114,7 @@ class MyActivity : AppCompatActivity() {
         }
         
         // Observe and handle state changes backed by a LiveData
-        viewModel.observeState(this) { state ->
+        viewModel.observeState(lifecycleOwner = this) { state ->
             when (state) {
                 is MyState.Init -> showWelcomeMessage()
                 
@@ -111,7 +131,7 @@ class MyActivity : AppCompatActivity() {
 
 ### Custom StateObserver
 
-If needed, you can easily create your custom state observers by implementing the `StateObserver<State>` interface:
+You can easily create your custom state observer by implementing the `StateObserver<State>` interface:
 
 ```kotlin
 class MyCustomStateObserver<S : HAL.State>(
@@ -120,7 +140,7 @@ class MyCustomStateObserver<S : HAL.State>(
 ) : StateObserver<S> {
 
     override fun transitionTo(newState: S) {
-        // Do any kind of operation and call `observer(newState)` in the end
+        // Do any kind of operation here and call `observer(newState)` in the end
         // IMPORTANT: this method runs on the Main Thread!
     }
 }
