@@ -79,7 +79,7 @@ class MyViewModel(private val postRepository: PostRepository)
 
 Finally, inside your view class (`Activity`, `Fragment` or similar) you can emit actions to your state machine and observe state changes.
 
-If you want to use a [built in LiveData state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt), just pass your `LifecycleOwner` to `viewModel.observeState()`, otherwise HAL will use a default [callback-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/CallbackStateObserver.kt) (which is best suited for JVM-only applications).
+If you want to use a [LiveData-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt), just pass your `LifecycleOwner` to `observeState()`, otherwise HAL will use a default [Callback-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/CallbackStateObserver.kt) (which is best suited for JVM-only applications).
 
 ```kotlin
 class MyActivity : AppCompatActivity() {
@@ -111,11 +111,11 @@ class MyActivity : AppCompatActivity() {
 
 ### Custom StateObserver
 
-If needed, you can easily create your custom state observers by just implementing the `StateObserver<State>` interface:
+If needed, you can easily create your custom state observers by implementing the `StateObserver<State>` interface:
 
 ```kotlin
 class MyCustomStateObserver<S : HAL.State>(
-    private val myCustomParam: SomeCoolClass,
+    private val myAwesomeParam: MyAwesomeClass,
     override val observer: (S) -> Unit
 ) : StateObserver<S> {
 
@@ -129,7 +129,7 @@ class MyCustomStateObserver<S : HAL.State>(
 And to use, just create an instance of it and pass to `observeState()` function: 
 
 ```kotlin
-viewModel.observeState(MyCustomStateObserver(myCustomParam) { state ->
+viewModel.observeState(MyCustomStateObserver(myAwesomeParam) { state ->
     // Handle state
 })
 ``` 
