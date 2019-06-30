@@ -8,13 +8,13 @@ import cafe.adriel.hal.HAL.StateObserver
 
 class LiveDataStateObserver<S : State>(
     lifecycleOwner: LifecycleOwner,
-    override val observer: (S) -> Unit
+    override val callback: (S) -> Unit
 ) : StateObserver<S> {
 
     private val liveData by lazy { MutableLiveData<S>() }
 
     init {
-        liveData.observe(lifecycleOwner, Observer(observer))
+        liveData.observe(lifecycleOwner, Observer(callback))
     }
 
     override fun transitionTo(newState: S) {

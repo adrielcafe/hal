@@ -54,7 +54,7 @@ class HAL<A : Action, S : State> (
 
     interface StateObserver<S : State> {
 
-        val observer: (S) -> Unit
+        val callback: (S) -> Unit
 
         fun transitionTo(newState: S)
     }

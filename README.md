@@ -15,7 +15,7 @@
 
 #### Why non-deterministic?
 
-In a [non-deterministic](https://www.tutorialspoint.com/automata_theory/non_deterministic_finite_automaton.htm) finite-state machine, an action can lead to *one*, *more than one*, or *no transition* for a given state.
+Because in a [non-deterministic](https://www.tutorialspoint.com/automata_theory/non_deterministic_finite_automaton.htm) finite-state machine, an action can lead to *one*, *more than one*, or *no transition* for a given state. That way we have more flexibility to handle any kind of scenario.
 
 Use cases:
 * InsertCoin `transition to` Unlocked
@@ -64,9 +64,11 @@ Next, implement the `HAL.StateMachine<YourAction, YourState>` interface in your 
 
 The `HAL` class receives the following parameters:
 * A [`CoroutineScope`](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope/) (tip: use the [built in viewModelScope](https://developer.android.com/topic/libraries/architecture/coroutines#viewmodelscope))
-* A initial state
+* An initial state
+* An *optional* capacity to specify the [Channel buffer size](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.channels/-channel/index.html) (default is [Channel.UNLIMITED](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.channels/-channel/-u-n-l-i-m-i-t-e-d.html))
+* An *optional* [CoroutineDispatcher](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-dispatcher/index.html) to run the reducer function (default is [Dispatcher.DEFAULT](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-default.html))
 * A reducer function, `suspend (action: A, transitionTo: (S) -> Unit) -> Unit`, where:
-    - `suspend`: the reducer runs inside a coroutine scope on a [default dispatcher](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-dispatcher/), so you can run IO and other complex tasks without worrying about block the Main Thread
+    - `suspend`: the reducer runs inside a `CoroutineScope`, so you can run IO and other complex tasks without worrying about block the Main Thread
     - `action: A`: the action emitted to the state machine 
     - `transitionTo: (S) -> Unit`: the function responsible for changing the state
 
@@ -168,10 +170,10 @@ allprojects {
 2. Next, add the desired dependencies to your module:
 ```gradle
 dependencies {
-    // Core with default state observer
+    // Core with callback state observer
     implementation "com.github.adrielcafe.hal:hal-core:$currentVersion"
 
-    // LiveData state observer
+    // LiveData state observer only
     implementation "com.github.adrielcafe.hal:hal-livedata:$currentVersion"
 }
 ```
