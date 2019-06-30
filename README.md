@@ -1,8 +1,8 @@
 [![JitPack](https://img.shields.io/jitpack/v/github/adrielcafe/hal.svg?style=for-the-badge)](https://jitpack.io/#adrielcafe/hal) 
 [![Android API](https://img.shields.io/badge/api-16%2B-brightgreen.svg?style=for-the-badge)](https://android-arsenal.com/api?level=16) 
 [![Bitrise](https://img.shields.io/bitrise/29bfee3f365ee4b9/master.svg?style=for-the-badge&token=AWE1QrlM0cgnpevpS1Tmrw)](https://app.bitrise.io/app/29bfee3f365ee4b9) 
-[![Codecov](https://img.shields.io/codecov/c/github/adrielcafe/hal/master.svg?style=for-the-badge)](https://codecov.io/gh/adrielcafe/hal) 
 [![Codacy](https://img.shields.io/codacy/grade/590119aba1d14ea38908d6c1c8c11f07.svg?style=for-the-badge)](https://www.codacy.com/app/adriel_cafe/hal) 
+[![Codecov](https://img.shields.io/codecov/c/github/adrielcafe/hal/master.svg?style=for-the-badge)](https://codecov.io/gh/adrielcafe/hal) 
 [![kotlin](https://img.shields.io/github/languages/top/adrielcafe/hal.svg?style=for-the-badge)](https://kotlinlang.org/) 
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg?style=for-the-badge)](https://ktlint.github.io/) 
 [![License MIT](https://img.shields.io/github/license/adrielcafe/hal.svg?style=for-the-badge&color=yellow)](https://opensource.org/licenses/MIT) 
@@ -83,7 +83,7 @@ class MyViewModel(private val postRepository: PostRepository) : ViewModel(), HAL
                 transitionTo(MyState.Loading)
                 
                 try {
-                    // You can run suspend functions
+                    // You can run suspend functions without blocking the Main Thread
                     val posts = postRepository.getPosts()
                     // And emit multiple states per action
                     transitionTo(MyState.PostsLoaded(posts))
@@ -113,7 +113,7 @@ class MyActivity : AppCompatActivity() {
     
         // Easily emit actions to your State Machine
         loadPostsBt.setOnClickListener {
-            viewModel + MyState.LoadPosts
+            viewModel + MyAction.LoadPosts
         }
         
         // Observe and handle state changes backed by a LiveData
