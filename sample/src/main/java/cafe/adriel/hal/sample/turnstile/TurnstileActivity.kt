@@ -3,7 +3,7 @@ package cafe.adriel.hal.sample.turnstile
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import cafe.adriel.hal.livedata.observer.LiveDataStateObserver
+import cafe.adriel.hal.livedata.LiveDataStateObserver
 import cafe.adriel.hal.observeState
 import cafe.adriel.hal.plus
 import cafe.adriel.hal.sample.R

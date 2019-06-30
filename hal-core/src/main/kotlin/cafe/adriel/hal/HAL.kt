@@ -2,8 +2,8 @@ package cafe.adriel.hal
 
 import cafe.adriel.hal.HAL.Action
 import cafe.adriel.hal.HAL.State
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -13,36 +13,36 @@ import kotlin.reflect.KProperty
 class HAL<A : Action, S : State> (
     private val scope: CoroutineScope,
     private val initialState: S,
+    bufferCapacity: Int = Channel.UNLIMITED,
+    private val reducerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val reducer: suspend (action: A, transitionTo: (S) -> Unit) -> Unit
 ) {
 
-    private val stateChannel by lazy { Channel<S>(Channel.UNLIMITED) }
+    private val stateChannel by lazy { Channel<S>(bufferCapacity) }
 
     private lateinit var stateObserver: StateObserver<S>
 
-    var currentState = initialState
-
-    init {
-        scope.launch {
-            stateChannel.consumeEach { state ->
-                currentState = state
-                stateObserver.transitionTo(currentState)
-            }
-        }
-    }
+    lateinit var currentState: S
+        private set
 
     fun observe(observer: StateObserver<S>) {
-        scope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
-            stateObserver = observer
-            stateChannel.send(initialState)
+        stateObserver = observer
+        stateChannel.offer(initialState)
+
+        scope.launch {
+            stateChannel.consumeEach { state ->
+                currentState = state.also(stateObserver::transitionTo)
+            }
         }
     }
 
     fun emit(action: A) {
-        scope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
-            reducer(action) {
-                stateChannel.offer(it)
-            }
+        if (::stateObserver.isInitialized.not()) {
+            throw UninitializedPropertyAccessException("The state observer must be initialized before invoking emit()")
+        }
+
+        scope.launch(reducerDispatcher) {
+            reducer(action) { stateChannel.offer(it) }
         }
     }
 

@@ -23,23 +23,19 @@ class NetworkActivity : AppCompatActivity() {
         }
 
         viewModel.observeState(this) { state ->
+            resetState()
+
             when (state) {
-                is NetworkState.Init -> {
-                    setLoading(false)
-                    clearPosts()
-                }
-                is NetworkState.PostsLoaded -> {
-                    setLoading(false)
-                    showPosts(state.posts)
-                }
+                is NetworkState.PostsLoaded -> showPosts(state.posts)
                 is NetworkState.Loading -> setLoading(true)
-                is NetworkState.Error -> {
-                    setLoading(false)
-                    clearPosts()
-                    showError(state.message)
-                }
+                is NetworkState.Error -> showError(state.message)
             }
         }
+    }
+
+    private fun resetState() {
+        setLoading(false)
+        clearPosts()
     }
 
     private fun showPosts(posts: List<String>) {

@@ -1,4 +1,4 @@
-package cafe.adriel.hal.observer
+package cafe.adriel.hal
 
 import cafe.adriel.hal.HAL.State
 import cafe.adriel.hal.HAL.StateObserver

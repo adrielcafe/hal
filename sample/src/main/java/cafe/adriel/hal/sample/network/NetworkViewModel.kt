@@ -11,7 +11,7 @@ import org.json.JSONArray
 
 class NetworkViewModel : ViewModel(), HAL.StateMachine<NetworkAction, NetworkState> {
 
-    override val hal by HAL(viewModelScope, NetworkState.Init, ::reducer)
+    override val hal by HAL(viewModelScope, NetworkState.Init, reducer = ::reducer)
 
     private suspend fun reducer(action: NetworkAction, transitionTo: (NetworkState) -> Unit) =
         when (action) {

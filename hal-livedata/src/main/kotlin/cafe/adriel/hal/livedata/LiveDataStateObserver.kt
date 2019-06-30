@@ -1,4 +1,4 @@
-package cafe.adriel.hal.livedata.observer
+package cafe.adriel.hal.livedata
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData

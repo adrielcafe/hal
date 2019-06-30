@@ -3,7 +3,6 @@ package cafe.adriel.hal
 import cafe.adriel.hal.HAL.Action
 import cafe.adriel.hal.HAL.State
 import cafe.adriel.hal.HAL.StateMachine
-import cafe.adriel.hal.observer.CallbackStateObserver
 
 val <S : State> StateMachine<out Action, S>.currentState: S
     get() = hal.currentState
