@@ -3,7 +3,8 @@ package cafe.adriel.hal
 import cafe.adriel.hal.util.TestStateMachine
 import cafe.adriel.hal.util.TurnstileAction
 import cafe.adriel.hal.util.TurnstileState
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import io.mockk.coVerify
+import io.mockk.spyk
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -15,10 +16,10 @@ import strikt.assertions.isEqualTo
 class StateMachineTest {
 
     private val testScope = TestCoroutineScope()
-    private val testDispatcher = TestCoroutineDispatcher()
 
     private val observer = CallbackStateObserver<TurnstileState> { }
-    private val stateMachine = TestStateMachine(testScope, testDispatcher)
+    private val reducer = spyk(::suspendReducer)
+    private val stateMachine = TestStateMachine(reducer)
 
     @After
     fun tearDown() {
@@ -42,7 +43,10 @@ class StateMachineTest {
     @Test
     fun `when emit an action then transition to the next state`() = runBlockingTest {
         stateMachine.observeState(observer)
+
         stateMachine + TurnstileAction.InsertCoin
+
+        coVerify { reducer(TurnstileAction.InsertCoin, any()) }
 
         expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Unlocked)
     }
@@ -60,4 +64,10 @@ class StateMachineTest {
             expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Unlocked)
         }
     }
+
+    private suspend fun suspendReducer(action: TurnstileAction, transitionTo: (TurnstileState) -> Unit) =
+        when (action) {
+            is TurnstileAction.InsertCoin -> transitionTo(TurnstileState.Unlocked)
+            is TurnstileAction.Push -> transitionTo(TurnstileState.Locked)
+        }
 }

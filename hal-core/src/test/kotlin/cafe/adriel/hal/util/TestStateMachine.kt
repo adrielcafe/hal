@@ -2,23 +2,19 @@ package cafe.adriel.hal.util
 
 import cafe.adriel.hal.HAL
 import io.mockk.spyk
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 
 class TestStateMachine(
-    scope: CoroutineScope,
-    dispatcher: CoroutineDispatcher
+    reducer: suspend (TurnstileAction, (TurnstileState) -> Unit) -> Unit
 ) : HAL.StateMachine<TurnstileAction, TurnstileState> {
 
-    override val hal by spyk(
-        HAL(scope, TurnstileState.Locked, reducerDispatcher = dispatcher, reducer = ::reducer)
+    override val hal by spyk(HAL<TurnstileAction, TurnstileState>(
+        scope = TestCoroutineScope(),
+        initialState = TurnstileState.Locked,
+        reducerDispatcher = TestCoroutineDispatcher(),
+        reducer = reducer)
     )
-
-    private suspend fun reducer(action: TurnstileAction, transitionTo: (TurnstileState) -> Unit) =
-        when (action) {
-            is TurnstileAction.InsertCoin -> transitionTo(TurnstileState.Unlocked)
-            is TurnstileAction.Push -> transitionTo(TurnstileState.Locked)
-        }
 }
 
 sealed class TurnstileAction : HAL.Action {
