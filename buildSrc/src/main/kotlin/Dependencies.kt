@@ -4,6 +4,7 @@ internal object Version {
     const val GRADLE_ANDROID = "3.4.1"
     const val GRADLE_DETEKT = "1.0.0-RC15"
     const val GRADLE_KTLINT = "8.1.0"
+    const val GRADLE_JACOCO = "0.15.0"
     const val GRADLE_VERSIONS = "0.21.0"
     const val GRADLE_MAVEN = "2.1"
 
@@ -17,6 +18,10 @@ internal object Version {
     const val VIEWMODEL_KTX = "2.2.0-alpha01"
     const val ACTIVITY_KTX = "1.0.0-beta01"
     const val FUEL = "2.1.0"
+
+    const val TEST_JUNIT = "4.12"
+    const val TEST_STRIKT = "0.21.1"
+    const val TEST_MOCKK = "1.9.3"
 }
 
 object ProjectLib {
@@ -24,10 +29,11 @@ object ProjectLib {
     const val KOTLIN = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Version.KOTLIN}"
     const val DETEKT = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Version.GRADLE_DETEKT}"
     const val KTLINT = "org.jlleitschuh.gradle:ktlint-gradle:${Version.GRADLE_KTLINT}"
+    const val JACOCO = "com.vanniktech:gradle-android-junit-jacoco-plugin:${Version.GRADLE_JACOCO}"
     const val VERSIONS = "com.github.ben-manes:gradle-versions-plugin:${Version.GRADLE_VERSIONS}"
     const val MAVEN = "com.github.dcendents:android-maven-gradle-plugin:${Version.GRADLE_MAVEN}"
 
-    val all = setOf(ANDROID, KOTLIN, DETEKT, KTLINT, VERSIONS, MAVEN)
+    val all = setOf(ANDROID, KOTLIN, DETEKT, KTLINT, JACOCO, VERSIONS, MAVEN)
 }
 
 object ModuleLib {
@@ -45,4 +51,13 @@ object ModuleLib {
 
     val sample = setOf(KOTLIN, COROUTINES_ANDROID, APP_COMPAT, LIFECYCLE, VIEWMODEL_KTX,
         ACTIVITY_KTX, FUEL_CORE, FUEL_COROUTINES)
+}
+
+object TestLib {
+    const val JUNIT = "junit:junit:${Version.TEST_JUNIT}"
+    const val STRIKT = "io.strikt:strikt-core:${Version.TEST_STRIKT}"
+    const val MOCKK = "io.mockk:mockk:${Version.TEST_MOCKK}"
+    const val COROUTINES = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Version.COROUTINES}"
+
+    val all = setOf(JUNIT, STRIKT, MOCKK, COROUTINES)
 }
