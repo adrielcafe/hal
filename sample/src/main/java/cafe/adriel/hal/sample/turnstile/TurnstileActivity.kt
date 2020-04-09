@@ -3,11 +3,13 @@ package cafe.adriel.hal.sample.turnstile
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import cafe.adriel.hal.livedata.LiveDataStateObserver
+import androidx.lifecycle.lifecycleScope
 import cafe.adriel.hal.observeState
-import cafe.adriel.hal.plus
+import cafe.adriel.hal.plusAssign
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_turnstile.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class TurnstileActivity : AppCompatActivity() {
 
@@ -18,23 +20,26 @@ class TurnstileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_turnstile)
 
         vInsertCoin.setOnClickListener {
-            viewModel + TurnstileAction.InsertCoin
+            viewModel += TurnstileAction.InsertCoin
         }
         vPush.setOnClickListener {
-            viewModel + TurnstileAction.Push
+            viewModel += TurnstileAction.Push
         }
 
-        viewModel.observeState(LiveDataStateObserver(this) { state ->
-            when (state) {
-                is TurnstileState.Locked -> updateState(true)
-                is TurnstileState.Unlocked -> updateState(false)
+        lifecycleScope.launch {
+            viewModel.observeState().collect { state ->
+                when (state) {
+                    is TurnstileState.Locked -> updateState(true)
+                    is TurnstileState.Unlocked -> updateState(false)
+                }
             }
-        })
+        }
     }
 
     private fun updateState(locked: Boolean) {
         vTurnstileState.setImageResource(
-            if (locked) R.drawable.ic_lock_close else R.drawable.ic_lock_open
+            if (locked) R.drawable.ic_lock_close
+            else R.drawable.ic_lock_open
         )
 
         vInsertCoin.isEnabled = locked

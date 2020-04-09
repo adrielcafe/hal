@@ -2,5 +2,5 @@
 
 object Maven {
 
-    const val GROUP = "com.github.adrielcafe.hal"
+    const val GROUP = "com.github.adrielcafe"
 }

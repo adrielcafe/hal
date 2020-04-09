@@ -5,15 +5,18 @@ import io.mockk.spyk
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 
-class TestStateMachine(
+class FakeStateMachine(
+    scope: TestCoroutineScope,
     reducer: suspend (TurnstileAction, (TurnstileState) -> Unit) -> Unit
 ) : HAL.StateMachine<TurnstileAction, TurnstileState> {
 
-    override val hal by spyk(HAL<TurnstileAction, TurnstileState>(
-        scope = TestCoroutineScope(),
-        initialState = TurnstileState.Locked,
-        reducerDispatcher = TestCoroutineDispatcher(),
-        reducer = reducer)
+    override val stateMachine by spyk(
+        HAL<TurnstileAction, TurnstileState>(
+            initialState = TurnstileState.Locked,
+            scope = scope,
+            dispatcher = TestCoroutineDispatcher(),
+            reducer = reducer
+        )
     )
 }
 
