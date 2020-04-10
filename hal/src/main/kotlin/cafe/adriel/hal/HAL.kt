@@ -8,8 +8,8 @@ import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -20,7 +20,7 @@ class HAL<A : Action, S : State> (
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineContext = Dispatchers.Default,
     buffer: Buffer = UNLIMITED,
-    private val reducer: suspend (action: A, transitionTo: (S) -> Unit) -> Unit
+    private val reducer: suspend StateMachineContext<S>.(action: A) -> Unit
 ) {
 
     interface Action
@@ -52,11 +52,16 @@ class HAL<A : Action, S : State> (
     var currentState = initialState
         private set
 
-    fun observe(): Flow<S> = stateFlow
+    fun handleState(handlerScope: CoroutineScope? = null, operation: suspend (value: S) -> Unit) {
+        stateFlow
+            .onEach(operation)
+            .launchIn(handlerScope ?: scope)
+    }
 
     fun emit(action: A) {
         scope.launch(dispatcher) {
-            reducer(action) { state -> stateChannel.offer(state) }
+            StateMachineContext(scope, dispatcher, stateChannel)
+                .reducer(action)
         }
     }
 

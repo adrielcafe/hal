@@ -5,19 +5,16 @@ import androidx.lifecycle.viewModelScope
 import cafe.adriel.hal.HAL
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitStringResult
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import org.json.JSONArray
 
 class NetworkViewModel : ViewModel(), HAL.StateMachine<NetworkAction, NetworkState> {
 
-    override val stateMachine by HAL(NetworkState.Init, viewModelScope, reducer = ::reducer)
-
-    private suspend fun reducer(action: NetworkAction, transitionTo: (NetworkState) -> Unit) =
+    override val stateMachine by HAL(NetworkState.Init, viewModelScope) { action ->
         when (action) {
             is NetworkAction.LoadPosts -> {
-                transitionTo(NetworkState.Loading)
-
+                +NetworkState.Loading
+dispatcher
                 // Extending the loading state
                 delay(REQUEST_DELAY)
 
@@ -26,28 +23,29 @@ class NetworkViewModel : ViewModel(), HAL.StateMachine<NetworkAction, NetworkSta
                     .fold(
                         success = { json ->
                             val posts = getPostsFromJson(json)
-                            transitionTo(NetworkState.PostsLoaded(posts))
+                            +NetworkState.PostsLoaded(posts)
                         },
                         failure = { error ->
-                            transitionTo(NetworkState.Error(error.localizedMessage))
+                            +NetworkState.Error(error.localizedMessage)
                         }
                     )
             }
         }
+    }
 
-    private suspend fun getPostsFromJson(json: String): List<String> = coroutineScope {
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun getPostsFromJson(json: String): List<String> {
         val postsJsonArray = JSONArray(json)
-        val posts = mutableListOf<String>()
 
-        (0 until postsJsonArray.length()).forEach { i ->
-            val postTitle = postsJsonArray
-                .getJSONObject(i)
-                .getString("title")
-                .capitalize()
-            posts.add(postTitle)
+        return buildList {
+            (0 until postsJsonArray.length()).forEach { i ->
+                val postTitle = postsJsonArray
+                    .getJSONObject(i)
+                    .getString("title")
+                    .capitalize()
+                add(postTitle)
+            }
         }
-
-        posts
     }
 
     companion object {

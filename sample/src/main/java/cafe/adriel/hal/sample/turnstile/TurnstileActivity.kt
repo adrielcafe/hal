@@ -4,12 +4,10 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import cafe.adriel.hal.observeState
+import cafe.adriel.hal.handleState
 import cafe.adriel.hal.plusAssign
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_turnstile.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class TurnstileActivity : AppCompatActivity() {
 
@@ -26,12 +24,10 @@ class TurnstileActivity : AppCompatActivity() {
             viewModel += TurnstileAction.Push
         }
 
-        lifecycleScope.launch {
-            viewModel.observeState().collect { state ->
-                when (state) {
-                    is TurnstileState.Locked -> updateState(true)
-                    is TurnstileState.Unlocked -> updateState(false)
-                }
+        viewModel.handleState(lifecycleScope) { state ->
+            when (state) {
+                is TurnstileState.Locked -> updateState(true)
+                is TurnstileState.Unlocked -> updateState(false)
             }
         }
     }
