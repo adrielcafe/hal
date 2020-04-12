@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import cafe.adriel.hal.handleState
+import cafe.adriel.hal.collectState
 import cafe.adriel.hal.plusAssign
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_turnstile.*
@@ -24,10 +24,10 @@ class TurnstileActivity : AppCompatActivity() {
             viewModel += TurnstileAction.Push
         }
 
-        viewModel.handleState(lifecycleScope) { state ->
+        viewModel.collectState(lifecycleScope) { state ->
             when (state) {
-                is TurnstileState.Locked -> updateState(true)
-                is TurnstileState.Unlocked -> updateState(false)
+                is TurnstileState.Locked -> updateState(locked = true)
+                is TurnstileState.Unlocked -> updateState(locked = false)
             }
         }
     }
@@ -39,6 +39,6 @@ class TurnstileActivity : AppCompatActivity() {
         )
 
         vInsertCoin.isEnabled = locked
-        vPush.isEnabled = !locked
+        vPush.isEnabled = locked.not()
     }
 }

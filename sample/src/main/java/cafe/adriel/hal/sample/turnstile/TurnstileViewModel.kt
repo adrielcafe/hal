@@ -6,7 +6,7 @@ import cafe.adriel.hal.HAL
 
 class TurnstileViewModel : ViewModel(), HAL.StateMachine<TurnstileAction, TurnstileState> {
 
-    override val stateMachine by HAL(TurnstileState.Locked, viewModelScope) { action ->
+    override val stateMachine by HAL(TurnstileState.Locked, viewModelScope) { action, _ ->
         when (action) {
             is TurnstileAction.InsertCoin -> +TurnstileState.Unlocked
             is TurnstileAction.Push -> +TurnstileState.Locked

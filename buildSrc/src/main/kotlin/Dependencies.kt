@@ -38,12 +38,12 @@ object ModuleLib {
     const val KOTLIN = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Version.KOTLIN}"
     const val COROUTINES_CORE = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.COROUTINES}"
     const val COROUTINES_ANDROID = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.COROUTINES}"
-    const val LIVEDATA = "androidx.lifecycle:lifecycle-livedata-ktx:${Version.LIFECYCLE}"
-
+    
     const val APP_COMPAT = "androidx.appcompat:appcompat:${Version.APP_COMPAT}"
+    const val ACTIVITY = "androidx.activity:activity-ktx:${Version.ACTIVITY}"
     const val LIFECYCLE = "androidx.lifecycle:lifecycle-extensions:${Version.LIFECYCLE}"
     const val VIEWMODEL = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Version.LIFECYCLE}"
-    const val ACTIVITY = "androidx.activity:activity-ktx:${Version.ACTIVITY}"
+    
     const val FUEL_CORE = "com.github.kittinunf.fuel:fuel:${Version.FUEL}"
     const val FUEL_COROUTINES = "com.github.kittinunf.fuel:fuel-coroutines:${Version.FUEL}"
 

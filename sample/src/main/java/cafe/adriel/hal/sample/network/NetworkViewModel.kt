@@ -10,11 +10,11 @@ import org.json.JSONArray
 
 class NetworkViewModel : ViewModel(), HAL.StateMachine<NetworkAction, NetworkState> {
 
-    override val stateMachine by HAL(NetworkState.Init, viewModelScope) { action ->
+    override val stateMachine by HAL(NetworkState.Init, viewModelScope) { action, _ ->
         when (action) {
             is NetworkAction.LoadPosts -> {
                 +NetworkState.Loading
-dispatcher
+
                 // Extending the loading state
                 delay(REQUEST_DELAY)
 
@@ -50,6 +50,6 @@ dispatcher
 
     companion object {
         private const val REQUEST_URL = "https://jsonplaceholder.typicode.com/posts"
-        private const val REQUEST_DELAY = 1000L
+        private const val REQUEST_DELAY = 1_000L
     }
 }

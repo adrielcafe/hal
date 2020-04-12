@@ -5,12 +5,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 
 @DslMarker
-private annotation class StateMachineDsl
+private annotation class HALDsl
 
-@StateMachineDsl
-class StateMachineContext<S : HAL.State>(
-    val scope: CoroutineScope,
-    val dispatcher: CoroutineContext,
+@HALDsl
+class HALContext<S : HAL.State>(
+    val halScope: CoroutineScope,
+    val halDispatcher: CoroutineContext,
     private val stateChannel: SendChannel<S>
 ) {
 

@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import cafe.adriel.hal.handleState
+import cafe.adriel.hal.collectState
 import cafe.adriel.hal.plusAssign
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_network.*
@@ -23,7 +23,7 @@ class NetworkActivity : AppCompatActivity() {
             viewModel += NetworkAction.LoadPosts
         }
 
-        viewModel.handleState(lifecycleScope) { state ->
+        viewModel.collectState(lifecycleScope) { state ->
             resetState()
 
             when (state) {

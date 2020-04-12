@@ -28,7 +28,7 @@ class StateMachineTest {
 
         stateMachine += TurnstileAction.InsertCoin
 
-        stateMachine.handleState().launchIn(this)
+        stateMachine.collectState().launchIn(this)
 
         coVerify { reducer(TurnstileAction.InsertCoin, any()) }
         expectThat(stateMachine.currentState) isEqualTo TurnstileState.Unlocked
