@@ -11,11 +11,11 @@ private annotation class HALDsl
 class HALContext<S : HAL.State>(
     val halScope: CoroutineScope,
     val halDispatcher: CoroutineContext,
-    private val stateChannel: SendChannel<S>
+    private val sender: SendChannel<S>
 ) {
 
     fun transitionTo(state: S) {
-        stateChannel.offer(state)
+        sender.offer(state)
     }
 
     operator fun S.unaryPlus() = transitionTo(this)
