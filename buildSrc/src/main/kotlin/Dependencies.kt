@@ -6,6 +6,7 @@ internal object Version {
     const val GRADLE_KTLINT = "9.2.1"
     const val GRADLE_JACOCO = "0.16.0"
     const val GRADLE_VERSIONS = "0.28.0"
+    const val GRADLE_MAVEN = "2.1"
 
     const val KOTLIN = "1.3.72"
     const val COROUTINES = "1.3.5"
@@ -30,8 +31,9 @@ object ProjectLib {
     const val KTLINT = "org.jlleitschuh.gradle:ktlint-gradle:${Version.GRADLE_KTLINT}"
     const val JACOCO = "com.vanniktech:gradle-android-junit-jacoco-plugin:${Version.GRADLE_JACOCO}"
     const val VERSIONS = "com.github.ben-manes:gradle-versions-plugin:${Version.GRADLE_VERSIONS}"
+    const val MAVEN = "com.github.dcendents:android-maven-gradle-plugin:${Version.GRADLE_MAVEN}"
 
-    val all = setOf(ANDROID, KOTLIN, SERIALIZATION, DETEKT, KTLINT, JACOCO, VERSIONS)
+    val all = setOf(ANDROID, KOTLIN, SERIALIZATION, DETEKT, KTLINT, JACOCO, VERSIONS, MAVEN)
 }
 
 object ModuleLib {
