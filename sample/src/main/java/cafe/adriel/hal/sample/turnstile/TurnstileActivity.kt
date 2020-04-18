@@ -3,19 +3,18 @@ package cafe.adriel.hal.sample.turnstile
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import cafe.adriel.hal.collectState
+import cafe.adriel.hal.livedata.observer.observeState
+import cafe.adriel.hal.observeState
 import cafe.adriel.hal.plusAssign
 import cafe.adriel.hal.sample.R
 import kotlinx.android.synthetic.main.activity_turnstile.*
 
-class TurnstileActivity : AppCompatActivity() {
+class TurnstileActivity : AppCompatActivity(R.layout.activity_turnstile) {
 
     private val viewModel by viewModels<TurnstileViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_turnstile)
 
         vInsertCoin.setOnClickListener {
             viewModel += TurnstileAction.InsertCoin
@@ -24,7 +23,7 @@ class TurnstileActivity : AppCompatActivity() {
             viewModel += TurnstileAction.Push
         }
 
-        viewModel.collectState(lifecycleScope) { state ->
+        viewModel.observeState(this) { state ->
             when (state) {
                 is TurnstileState.Locked -> updateState(locked = true)
                 is TurnstileState.Unlocked -> updateState(locked = false)

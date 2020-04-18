@@ -4,6 +4,9 @@ apply plugin: 'maven'
 
 group = Maven.GROUP
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin/'
 }
@@ -14,6 +17,3 @@ dependencies {
 
     TestLib.all.forEach { testImplementation it }
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8

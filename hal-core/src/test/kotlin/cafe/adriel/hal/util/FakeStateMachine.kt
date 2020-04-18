@@ -1,20 +1,22 @@
 package cafe.adriel.hal.util
 
 import cafe.adriel.hal.HAL
+import cafe.adriel.hal.HALContext
 import io.mockk.spyk
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 
 class FakeStateMachine(
     scope: TestCoroutineScope,
-    reducer: suspend (TurnstileAction, (TurnstileState) -> Unit) -> Unit
+    dispatcher: TestCoroutineDispatcher,
+    reducer: suspend HALContext<TurnstileState>.(TurnstileAction, TurnstileState) -> Unit
 ) : HAL.StateMachine<TurnstileAction, TurnstileState> {
 
     override val stateMachine by spyk(
         HAL<TurnstileAction, TurnstileState>(
             initialState = TurnstileState.Locked,
             scope = scope,
-            dispatcher = TestCoroutineDispatcher(),
+            dispatcher = dispatcher,
             reducer = reducer
         )
     )

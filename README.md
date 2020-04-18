@@ -11,7 +11,7 @@
     <img width="200px" height="200px" src="https://github.com/adrielcafe/hal/blob/master/hal-logo.png?raw=true">
 </p>
 
-### **HAL** is a non-deterministic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
+### **HAL** is a non-deterministic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
 
 #### Why non-deterministic?
 
@@ -37,7 +37,6 @@ It's a tribute to [HAL 9000](https://en.wikipedia.org/wiki/HAL_9000) (**H**euris
 This project started as a library module in one of my personal projects, but I decided to open source it and add more features for general use. Hope you like!
 
 ## Usage
-
 First, declare your `Action`s and `State`s. They *must* implement `HAL.Action` and `HAL.State` respectively.
 
 ```kotlin
@@ -63,32 +62,31 @@ sealed class MyState : HAL.State {
 Next, implement the `HAL.StateMachine<YourAction, YourState>` interface in your `ViewModel`, `Presenter`, `Controller` or similar.
 
 The `HAL` class receives the following parameters:
+* The initial state
 * A [`CoroutineScope`](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope/) (tip: use the [built in viewModelScope](https://developer.android.com/topic/libraries/architecture/coroutines#viewmodelscope))
-* An initial state
-* An *optional* capacity to specify the [Channel buffer size](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.channels/-channel/index.html) (default is [Channel.UNLIMITED](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.channels/-channel/-u-n-l-i-m-i-t-e-d.html))
 * An *optional* [CoroutineDispatcher](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-dispatcher/index.html) to run the reducer function (default is [Dispatcher.DEFAULT](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-dispatchers/-default.html))
-* A reducer function, `suspend (action: A, transitionTo: (S) -> Unit) -> Unit`, where:
+* A reducer function, `suspend (action: A, state: S) -> Unit`, where:
     - `suspend`: the reducer runs inside a `CoroutineScope`, so you can run IO and other complex tasks without worrying about block the Main Thread
     - `action: A`: the action emitted to the state machine 
-    - `transitionTo: (S) -> Unit`: the function responsible for changing the state
+    - `state: S`: the current state of the state machine
 
-You should handle all actions inside the reducer function. Call `transitionTo()` whenever you need to change the state (it can be called multiple times).
+You should handle all actions inside the reducer function. Call `transitionTo(newState)` or simply `+newState` whenever you need to change the state (it can be called multiple times).
 
 ```kotlin
 class MyViewModel(private val postRepository: PostRepository) : ViewModel(), HAL.StateMachine<MyAction, MyState> {
 
-    override val hal by HAL(viewModelScope, MyState.Init) { action, transitionTo ->
+    override val stateMachine by HAL(MyState.Init, viewModelScope) { action, state ->
         when (action) {
             is MyAction.LoadPosts -> {
-                transitionTo(MyState.Loading)
+                +MyState.Loading
                 
                 try {
                     // You can run suspend functions without blocking the Main Thread
                     val posts = postRepository.getPosts()
                     // And emit multiple states per action
-                    transitionTo(MyState.PostsLoaded(posts))
+                    +MyState.PostsLoaded(posts)
                 } catch(e: Exception) {
-                    transitionTo(MyState.Error("Ops, something went wrong."))
+                    +MyState.Error("Ops, something went wrong.")
                 }
             }
             
@@ -100,9 +98,7 @@ class MyViewModel(private val postRepository: PostRepository) : ViewModel(), HAL
 }
 ```
 
-Finally, choose a class to emit actions to your state machine and observe state changes, it can be an `Activity`, `Fragment` or any other class.
-
-If you want to use a [LiveData-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt) (highly recommended if you're on Android), just pass your `LifecycleOwner` to `observeState()`, otherwise HAL will use a default [Callback-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/CallbackStateObserver.kt) (which is best suited for JVM-only applications).
+Finally, choose a class to emit actions to your state machine and observe state changes, it can be an `Activity`, `Fragment`, `View` or any other class.
 
 ```kotlin
 class MyActivity : AppCompatActivity() {
@@ -112,12 +108,13 @@ class MyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
     
         // Easily emit actions to your State Machine
+        // You can all use: viewModel.emit(MyAction.LoadPosts)
         loadPostsBt.setOnClickListener {
-            viewModel + MyAction.LoadPosts
+            viewModel += MyAction.LoadPosts
         }
         
-        // Observe and handle state changes backed by a LiveData
-        viewModel.observeState(lifecycleOwner = this) { state ->
+        // Observe and handle state changes
+        viewModel.observeState(lifecycleScope) { state ->
             when (state) {
                 is MyState.Init -> showWelcomeMessage()
                 
@@ -132,19 +129,76 @@ class MyActivity : AppCompatActivity() {
 }
 ```
 
-### Custom StateObserver
+If you want to use a [**LiveData**-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-livedata/src/main/kotlin/cafe/adriel/hal/livedata/observer/LiveDataStateObserver.kt), just pass your `LifecycleOwner` to `observeState()`, otherwise HAL will use the default [**Flow**-based state observer](https://github.com/adrielcafe/HAL/blob/master/hal-core/src/main/kotlin/cafe/adriel/hal/observer/FlowStateObserver.kt).
 
-You can easily create your custom state observer by implementing the `StateObserver<State>` interface:
+```kotlin
+// Observe and handle state changes backed by LiveData
+viewModel.observeState(lifecycleOwner) { state ->
+    // Handle state
+}
+```
+
+### TEA/Redux like approach
+Do you like the idea of have a single source of truth, like the Model in [The Elm Architecture](https://guide.elm-lang.org/architecture/) or Store in [Redux](https://redux.js.org/introduction/three-principles)? I have good news: you can do the same with HAL!
+
+Instead of use a sealed class with multiple states just create a single data class to represent your entire state:
+
+```kotlin
+sealed class MyAction : HAL.Action {
+    // Declare your actions as usual
+}
+
+// Tip: use default parameters to represent your initial state
+data class MyState(
+    val posts: List<Post> = emptyList(),
+    val loading: Boolean = false,
+    val error: String? = null
+) : HAL.State
+```
+
+Now, when handling the emitted actions use `state.copy()` to change your state:
+
+```kotlin
+override val stateMachine by HAL(MyState(), viewModelScope) { action, state ->
+    when (action) {
+        is NetworkAction.LoadPosts -> {
+            +state.copy(loading = true)
+
+            try {
+                val posts = postRepository.getPosts()
+                +state.copy(posts = posts)
+            } catch (e: Throwable) {
+                +state.copy(error = "Ops, something went wrong.")
+            }
+        }
+        
+        is MyAction.AddPost -> {
+            /* Handle action */
+        }
+    }
+}
+```
+
+And finally you can handle the state as a single source of truth:
+
+```kotlin
+viewModel.observeState(lifecycleScope) { state ->
+    showPosts(state.posts)
+    setLoading(state.loading)
+    state.error?.let(::showError)
+}
+```
+
+### Custom StateObserver
+If needed, you can also create your custom state observer by implementing the `StateObserver<S>` interface:
 
 ```kotlin
 class MyCustomStateObserver<S : HAL.State>(
-    private val myAwesomeParam: MyAwesomeClass,
-    override val observer: (S) -> Unit
-) : StateObserver<S> {
+    private val myAwesomeParam: MyAwesomeClass
+) : HAL.StateObserver<S> {
 
-    override fun transitionTo(newState: S) {
-        // Do any kind of operation here and call `observer(newState)` in the end
-        // IMPORTANT: this method runs on the Main Thread!
+    override fun observe(receiver: ReceiveChannel<S>) {
+        // You should consume the channel and handle the incoming states
     }
 }
 ``` 
@@ -152,9 +206,7 @@ class MyCustomStateObserver<S : HAL.State>(
 And to use, just create an instance of it and pass to `observeState()` function: 
 
 ```kotlin
-viewModel.observeState(MyCustomStateObserver(myAwesomeParam) { state ->
-    // Handle state
-})
+viewModel.observeState(MyCustomStateObserver(myAwesomeParam))
 ``` 
 
 ## Import to your project
@@ -170,7 +222,7 @@ allprojects {
 2. Next, add the desired dependencies to your module:
 ```gradle
 dependencies {
-    // Core with callback state observer
+    // Core with Flow state observer
     implementation "com.github.adrielcafe.hal:hal-core:$currentVersion"
 
     // LiveData state observer only

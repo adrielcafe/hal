@@ -7,10 +7,7 @@ import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
 
 class HAL<A : Action, S : State> (
@@ -25,10 +22,16 @@ class HAL<A : Action, S : State> (
     interface State
 
     interface StateMachine<A : Action, S : State> {
+
         val stateMachine: HAL<A, S>
     }
 
-    private val stateMachineContext by lazy {
+    interface StateObserver<S : State> {
+
+        fun observe(receiver: ReceiveChannel<S>)
+    }
+
+    private val context by lazy {
         HALContext(scope, dispatcher, stateChannel)
     }
 
@@ -39,21 +42,12 @@ class HAL<A : Action, S : State> (
     val currentState: S
         get() = stateChannel.value
 
-    fun collectState(
-        handlerScope: CoroutineScope?,
-        handlerDispatcher: CoroutineContext?,
-        operation: suspend (state: S) -> Unit
-    ) {
-        stateChannel
-            .asFlow()
-            .onEach(operation)
-            .flowOn(handlerDispatcher ?: Dispatchers.Main)
-            .launchIn(handlerScope ?: scope)
-    }
+    infix fun observeState(observer: StateObserver<S>) =
+        observer.observe(stateChannel.openSubscription())
 
-    fun emit(action: A) {
+    infix fun emit(action: A) {
         scope.launch(dispatcher) {
-            stateMachineContext.reducer(action, currentState)
+            context.reducer(action, currentState)
         }
     }
 
