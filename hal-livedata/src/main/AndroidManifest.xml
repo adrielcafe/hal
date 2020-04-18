@@ -1,1 +1,2 @@
-<manifest package="cafe.adriel.hal"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cafe.adriel.hal" />

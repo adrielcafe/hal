@@ -1,4 +1,4 @@
-package cafe.adriel.hal.livedata
+package cafe.adriel.hal.livedata.observer
 
 import androidx.lifecycle.LifecycleOwner
 import cafe.adriel.hal.HAL.Action
@@ -6,7 +6,7 @@ import cafe.adriel.hal.HAL.State
 import cafe.adriel.hal.HAL.StateMachine
 
 fun <S : State> StateMachine<out Action, S>.observeState(
-    lifecycleOwner: LifecycleOwner,
-    callback: (S) -> Unit
+    owner: LifecycleOwner,
+    onStateChanged: (state: S) -> Unit
 ) =
-    hal.observe(LiveDataStateObserver(lifecycleOwner, callback))
+    stateMachine observeState LiveDataStateObserver(owner, onStateChanged)

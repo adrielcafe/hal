@@ -1,71 +1,66 @@
 package cafe.adriel.hal
 
-import cafe.adriel.hal.util.TestStateMachine
+import cafe.adriel.hal.util.FakeStateMachine
+import cafe.adriel.hal.util.TestCoroutineScopeRule
 import cafe.adriel.hal.util.TurnstileAction
 import cafe.adriel.hal.util.TurnstileState
 import io.mockk.coVerify
+import io.mockk.coVerifySequence
 import io.mockk.spyk
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.After
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import strikt.api.expectThat
-import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
 
 class StateMachineTest {
 
-    private val testScope = TestCoroutineScope()
+    @get:Rule
+    val testScopeRule = TestCoroutineScopeRule()
 
-    private val observer = CallbackStateObserver<TurnstileState> { }
-    private val reducer = spyk(::suspendReducer)
-    private val stateMachine = TestStateMachine(reducer)
+    private lateinit var stateMachine: FakeStateMachine
 
-    @After
-    fun tearDown() {
-        testScope.cleanupTestCoroutines()
+    private val reducer = spyk(::stateReducer)
+
+    @Before
+    fun setup() {
+        stateMachine = FakeStateMachine(testScopeRule, testScopeRule.dispatcher) { action, _ ->
+            reducer(action, ::transitionTo)
+        }
     }
 
     @Test
-    fun `when set the observer with a StateObserver instance then set the initial state`() = runBlockingTest {
-        stateMachine.observeState(observer)
-
-        expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Locked)
+    fun `when start HAL then set the initial state`() {
+        expectThat(stateMachine.currentState) isEqualTo TurnstileState.Locked
     }
 
     @Test
-    fun `when set the observer with a lambda then set the initial state`() = runBlockingTest {
-        stateMachine.observeState { }
+    fun `when emit one single action then transition to expected state`() {
+        stateMachine += TurnstileAction.InsertCoin
 
-        expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Locked)
-    }
-
-    @Test
-    fun `when emit an action then transition to the next state`() = runBlockingTest {
-        stateMachine.observeState(observer)
-
-        stateMachine + TurnstileAction.InsertCoin
+        stateMachine.observeState(testScopeRule, testScopeRule.dispatcher) {}
 
         coVerify { reducer(TurnstileAction.InsertCoin, any()) }
 
-        expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Unlocked)
+        expectThat(stateMachine.currentState) isEqualTo TurnstileState.Unlocked
     }
 
     @Test
-    fun `when emit an action without set the observer then throw exception`() = runBlockingTest {
-        expectThrows<UninitializedPropertyAccessException> {
-            stateMachine + TurnstileAction.InsertCoin
+    fun `when emit multiples actions then transition to expected states`() {
+        stateMachine += TurnstileAction.InsertCoin
+        stateMachine += TurnstileAction.Push
+
+        stateMachine.observeState(testScopeRule, testScopeRule.dispatcher) {}
+
+        coVerifySequence {
+            reducer(TurnstileAction.InsertCoin, any())
+            reducer(TurnstileAction.Push, any())
         }
+
+        expectThat(stateMachine.currentState) isEqualTo TurnstileState.Locked
     }
 
-    @Test
-    fun `when get the current state without set the observer then throw exception`() = runBlockingTest {
-        expectThrows<UninitializedPropertyAccessException> {
-            expectThat(stateMachine.currentState).isEqualTo(TurnstileState.Unlocked)
-        }
-    }
-
-    private suspend fun suspendReducer(action: TurnstileAction, transitionTo: (TurnstileState) -> Unit) =
+    private fun stateReducer(action: TurnstileAction, transitionTo: (TurnstileState) -> Unit) =
         when (action) {
             is TurnstileAction.InsertCoin -> transitionTo(TurnstileState.Unlocked)
             is TurnstileAction.Push -> transitionTo(TurnstileState.Locked)

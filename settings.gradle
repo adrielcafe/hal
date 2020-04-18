@@ -1,1 +1,1 @@
-include ':sample', ':hal-core', ':hal-livedata'
+include ':hal-core', ':hal-livedata', ':sample'
