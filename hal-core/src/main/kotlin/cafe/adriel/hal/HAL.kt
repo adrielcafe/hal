@@ -6,8 +6,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class HAL<A : Action, S : State> (
@@ -28,22 +28,22 @@ class HAL<A : Action, S : State> (
 
     interface StateObserver<S : State> {
 
-        fun observe(receiver: ReceiveChannel<S>)
+        fun observe(stateFlow: Flow<S>)
     }
 
     private val context by lazy {
-        HALContext(scope, dispatcher, stateChannel)
+        HALContext(scope, dispatcher, stateFlow)
     }
 
-    private val stateChannel by lazy {
-        ConflatedBroadcastChannel(initialState)
+    private val stateFlow by lazy {
+        MutableStateFlow(initialState)
     }
 
     val currentState: S
-        get() = stateChannel.value
+        get() = stateFlow.value
 
     infix fun observeState(observer: StateObserver<S>) =
-        observer.observe(stateChannel.openSubscription())
+        observer.observe(stateFlow)
 
     infix fun emit(action: A) {
         scope.launch(dispatcher) {

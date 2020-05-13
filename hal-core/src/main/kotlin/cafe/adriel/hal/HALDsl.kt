@@ -2,7 +2,7 @@ package cafe.adriel.hal
 
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @DslMarker
 private annotation class HALDsl
@@ -11,11 +11,11 @@ private annotation class HALDsl
 class HALContext<S : HAL.State>(
     val halScope: CoroutineScope,
     val halDispatcher: CoroutineContext,
-    private val sender: SendChannel<S>
+    private val stateFlow: MutableStateFlow<S>
 ) {
 
     fun transitionTo(state: S) {
-        sender.offer(state)
+        stateFlow.value = state
     }
 
     operator fun S.unaryPlus() = transitionTo(this)

@@ -2,8 +2,8 @@ package cafe.adriel.hal.util
 
 import cafe.adriel.hal.HAL
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CustomStateObserver<S : HAL.State>(
@@ -11,9 +11,9 @@ class CustomStateObserver<S : HAL.State>(
     private val onStateChanged: (S) -> Unit
 ) : HAL.StateObserver<S> {
 
-    override fun observe(receiver: ReceiveChannel<S>) {
+    override fun observe(stateFlow: Flow<S>) {
         scope.launch {
-            receiver.consumeEach(onStateChanged)
+            stateFlow.collect { onStateChanged(it) }
         }
     }
 }

@@ -6,8 +6,7 @@ import cafe.adriel.hal.util.TestCoroutineScopeRule
 import cafe.adriel.hal.util.TurnstileState
 import io.mockk.coVerify
 import io.mockk.spyk
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +16,7 @@ class StateObserverTest {
     @get:Rule
     val testScopeRule = TestCoroutineScopeRule()
 
-    private lateinit var stateChannel: BroadcastChannel<TurnstileState>
+    private lateinit var stateFlow: MutableStateFlow<TurnstileState>
     private lateinit var flowObserver: FlowStateObserver<TurnstileState>
     private lateinit var customObserver: CustomStateObserver<TurnstileState>
 
@@ -26,35 +25,31 @@ class StateObserverTest {
 
     @Before
     fun setup() {
-        stateChannel = ConflatedBroadcastChannel()
+        stateFlow = MutableStateFlow(TurnstileState.Locked)
 
         flowObserver = FlowStateObserver(
             testScopeRule,
             testScopeRule.dispatcher,
             flowListener
         ).apply {
-            observe(stateChannel.openSubscription())
+            observe(stateFlow)
         }
 
         customObserver = CustomStateObserver(
             testScopeRule,
             customListener
         ).apply {
-            observe(stateChannel.openSubscription())
+            observe(stateFlow)
         }
     }
 
     @Test
-    fun `when channel emits a state then flow observer calls listener`() {
-        stateChannel.offer(TurnstileState.Locked)
-
+    fun `when flow emits a state then flow observer calls listener`() {
         coVerify { flowListener(TurnstileState.Locked) }
     }
 
     @Test
-    fun `when channel emits a state then custom observer calls listener`() {
-        stateChannel.offer(TurnstileState.Locked)
-
+    fun `when flow emits a state then custom observer calls listener`() {
         coVerify { customListener(TurnstileState.Locked) }
     }
 

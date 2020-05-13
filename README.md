@@ -11,7 +11,7 @@
     <img width="200px" height="200px" src="https://github.com/adrielcafe/hal/blob/master/hal-logo.png?raw=true">
 </p>
 
-### **HAL** is a non-deterministic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
+### **HAL** is a non-deterministic [finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) for Android &amp; JVM built with [Coroutines StateFlow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html) and [LiveData](https://developer.android.com/topic/libraries/architecture/livedata).
 
 #### Why non-deterministic?
 
@@ -197,8 +197,8 @@ class MyCustomStateObserver<S : HAL.State>(
     private val myAwesomeParam: MyAwesomeClass
 ) : HAL.StateObserver<S> {
 
-    override fun observe(receiver: ReceiveChannel<S>) {
-        // You should consume the channel and handle the incoming states
+    override fun observe(stateFlow: Flow<S>) {
+        // Handle the incoming states
     }
 }
 ``` 
