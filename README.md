@@ -138,8 +138,8 @@ viewModel.observeState(lifecycleOwner) { state ->
 }
 ```
 
-### TEA/Redux like approach
-Do you like the idea of have a single source of truth, like the Model in [The Elm Architecture](https://guide.elm-lang.org/architecture/) or Store in [Redux](https://redux.js.org/introduction/three-principles)? I have good news: you can do the same with HAL!
+### Single source of truth
+Do you like the idea of have a single source of truth, like the Model in [The Elm Architecture](https://guide.elm-lang.org/architecture/) or the Store in [Redux](https://redux.js.org/introduction/three-principles)? I have good news: you can do the same with HAL!
 
 Instead of use a sealed class with multiple states just create a single data class to represent your entire state:
 

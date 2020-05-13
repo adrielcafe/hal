@@ -17,6 +17,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
     buildTypes {
         debug {
             testCoverageEnabled true
@@ -28,6 +31,7 @@ dependencies {
     implementation project(':hal-core')
 
     implementation ModuleLib.KOTLIN
+    implementation ModuleLib.COROUTINES_ANDROID
     implementation ModuleLib.LIVEDATA
 
     TestLib.all.forEach { testImplementation it }
