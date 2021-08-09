@@ -1,21 +1,19 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven'
-
-group = Maven.GROUP
+apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin/'
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     lintOptions {
         abortOnError false
@@ -30,9 +28,21 @@ android {
 dependencies {
     implementation project(':hal-core')
 
-    implementation ModuleLib.KOTLIN
     implementation ModuleLib.COROUTINES_ANDROID
     implementation ModuleLib.LIVEDATA
 
     TestLib.all.forEach { testImplementation it }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = Maven.GROUP_ID
+                artifactId = "hal-livedata"
+            }
+        }
+    }
 }

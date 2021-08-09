@@ -13,7 +13,7 @@ class LiveDataStateObserver<S : HAL.State>(
 ) : HAL.StateObserver<S> {
 
     override fun observe(stateFlow: Flow<S>) {
-        liveData<S> {
+        liveData {
             stateFlow.collect(::emit)
         }.observe(owner, onStateChanged)
     }

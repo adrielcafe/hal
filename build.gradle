@@ -1,9 +1,8 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
     }
     dependencies {
         ProjectLib.all.forEach { classpath it }
@@ -16,7 +15,6 @@ allprojects {
     apply plugin: 'com.github.ben-manes.versions'
     repositories {
         google()
-        jcenter()
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
@@ -28,7 +26,7 @@ allprojects {
     }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8
+            jvmTarget = JavaVersion.VERSION_11
         }
     }
 }
