@@ -5,10 +5,9 @@ import cafe.adriel.hal.util.CustomStateObserver
 import cafe.adriel.hal.util.TestCoroutineScopeRule
 import cafe.adriel.hal.util.TurnstileState
 import io.mockk.coVerify
-import io.mockk.spyk
+import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -21,8 +20,8 @@ class StateObserverTest {
     private lateinit var flowObserver: FlowStateObserver<TurnstileState>
     private lateinit var customObserver: CustomStateObserver<TurnstileState>
 
-    private val flowListener = spyk(::flowOnStateChanged)
-    private val customListener = spyk(::customOnStateChanged)
+    private val flowListener = mockk<suspend (TurnstileState) -> Unit>(relaxed = true)
+    private val customListener = mockk<(TurnstileState) -> Unit>(relaxed = true)
 
     @Before
     fun setup() {
@@ -45,7 +44,6 @@ class StateObserverTest {
     }
 
     @Test
-    @Ignore("Broke after update Coroutines, needs investigation")
     fun `when flow emits a state then flow observer calls listener`() {
         coVerify { flowListener(TurnstileState.Locked) }
     }
@@ -53,13 +51,5 @@ class StateObserverTest {
     @Test
     fun `when flow emits a state then custom observer calls listener`() {
         coVerify { customListener(TurnstileState.Locked) }
-    }
-
-    private suspend fun flowOnStateChanged(state: TurnstileState) {
-        // Do nothing
-    }
-
-    private fun customOnStateChanged(state: TurnstileState) {
-        // Do nothing
     }
 }

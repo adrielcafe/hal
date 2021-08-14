@@ -15,7 +15,6 @@ dependencies {
     TestLib.all.forEach { testImplementation it }
 }
 
-
 afterEvaluate {
     publishing {
         publications {
