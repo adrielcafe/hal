@@ -8,9 +8,13 @@ import cafe.adriel.hal.observer.FlowStateObserver
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
+
+val <S : State> StateMachine<out Action, S>.state: StateFlow<S>
+    get() = stateMachine.state
 
 val <S : State> StateMachine<out Action, S>.currentState: S
-    get() = stateMachine.currentState
+    get() = stateMachine.state.value
 
 fun <S : State> StateMachine<out Action, S>.observeState(stateObserver: StateObserver<S>) =
     stateMachine observeState stateObserver

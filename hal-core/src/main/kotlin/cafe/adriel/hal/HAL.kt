@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HAL<A : Action, S : State> (
@@ -32,22 +33,23 @@ class HAL<A : Action, S : State> (
     }
 
     private val context by lazy {
-        HALContext(scope, dispatcher, stateFlow)
+        HALContext(scope, dispatcher, _state)
     }
 
-    private val stateFlow by lazy {
+    private val _state by lazy {
         MutableStateFlow(initialState)
     }
 
-    val currentState: S
-        get() = stateFlow.value
+    val state by lazy {
+        _state.asStateFlow()
+    }
 
     infix fun observeState(observer: StateObserver<S>) =
-        observer.observe(stateFlow)
+        observer.observe(_state)
 
     infix fun emit(action: A) {
         scope.launch(dispatcher) {
-            context.reducer(action, currentState)
+            context.reducer(action, state.value)
         }
     }
 
